@@ -11,7 +11,7 @@ class Configuration:
     """Configuration class for MCP routing operations."""
 
     embedding_model: Annotated[str, {"__template_metadata__": {"kind": "embeddings"}}] = field(
-        default="openai/text-embedding-3-large",
+        default="BAAI/bge-m3",
         metadata={"description": "Embedding model to use."}
     )
 

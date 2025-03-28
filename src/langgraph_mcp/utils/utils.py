@@ -104,12 +104,12 @@ def load_chat_model(fully_specified_name: str) -> BaseChatModel:
     Args:
         fully_specified_name (str): String in the format 'provider/model'.
     """
-    if "/" in fully_specified_name:
-        provider, model = fully_specified_name.split("/", maxsplit=1)
-    else:
-        provider = ""
-        model = fully_specified_name
-    return init_chat_model(model, model_provider=provider)
+    return init_chat_model(
+        "glm-4-plus",
+        model_provider="openai",
+        base_url="xxxx",
+        api_key="xxxx",
+    )
 
 
 def inline_refs(node, root, visited=None):

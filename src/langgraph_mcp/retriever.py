@@ -21,14 +21,13 @@ from langgraph_mcp.configuration import Configuration
 
 def make_text_encoder(model: str) -> Embeddings:
     """Connect to the configured text encoder."""
-    provider, model = model.split("/", maxsplit=1)
-    match provider:
-        case "openai":
-            from langchain_openai import OpenAIEmbeddings
+    from langchain_openai import OpenAIEmbeddings
 
-            return OpenAIEmbeddings(model=model)
-        case _:
-            raise ValueError(f"Unsupported embedding provider: {provider}")
+    return OpenAIEmbeddings(
+        model=model,
+        api_key="xxxx",
+        base_url="https://api.siliconflow.cn/v1",
+    )
 
 
 ## Retriever constructors
@@ -39,13 +38,17 @@ def make_milvus_retriever(
     """Configure this agent to use milvus lite file based uri to store the vector index."""
     from langchain_milvus.vectorstores import Milvus
 
-    uri = os.environ["MILVUS_DB"]
-    vstore = Milvus (
+    # uri = os.environ["MILVUS_DB"]
+    vstore = Milvus(
         embedding_function=embedding_model,
-        connection_args={"uri": uri},
-        index_params=None if uri.startswith("http") else {"index_type": "FLAT", "metric_type": "L2", "params": {}}
+        connection_args={
+            "uri": "http://xxx:xxx@127.0.0.1:19530",
+            "db_name": "tool_box",
+        },
+        index_params=None
     )
     yield vstore.as_retriever()
+
 
 @contextmanager
 def make_retriever(

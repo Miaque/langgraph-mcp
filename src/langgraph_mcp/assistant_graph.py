@@ -1,20 +1,23 @@
+import asyncio
 import json
+import logging
 from datetime import datetime, timezone
-from langchain_core.documents import Document
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableConfig
-from langgraph.graph import StateGraph, START, END
-from pydantic import BaseModel
 from typing import cast
 
-from langgraph_mcp.configuration import Configuration
+from langchain_core.documents import Document
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, START, StateGraph
+from pydantic import BaseModel
+
 from langgraph_mcp import mcp_wrapper as mcp
+from langgraph_mcp.configuration import Configuration
 from langgraph_mcp.retriever import make_retriever
 from langgraph_mcp.state import InputState, State
-from langgraph_mcp.utils.utils import get_message_text, load_chat_model, format_docs
-from langgraph_mcp.utils.openapi_spec import OpenAPISpec
-from langgraph_mcp.utils.openapi_utils import openapi_spec_to_openai_fn
+from langgraph_mcp.utils.utils import format_docs, get_message_text, load_chat_model
+
+logger = logging.getLogger(__name__)
 
 NOTHING_RELEVANT = "No MCP server with an appropriate tool to address current context"  # When available MCP servers seem to be irrelevant for the query
 IDK_RESPONSE = "No appropriate tool available."  # Default response where the current MCP Server can't help
@@ -147,9 +150,9 @@ async def route(
         else response.content
     )
 
-    if len(mcp_server.split(" ")) > 1:
-        # Likely a clarification. model has not adhered to the prompt instructions
-        return {"messages": [response]}
+    # if len(mcp_server.split(" ")) > 1:
+    #     # Likely a clarification. model has not adhered to the prompt instructions
+    #     return {"messages": [response]}
 
     return {"current_mcp_server": mcp_server}
 
@@ -244,16 +247,16 @@ async def mcp_orchestrator(
 
     # If the model has an AI response with a tool_call, find the selected tool
     current_tool = None
-    if args[0] == "openapi-mcp-server@1.1.0":
-        if response.__class__ == AIMessage and response.tool_calls:
-            current_tool = next(
-                (
-                    tool
-                    for tool in tools
-                    if tool["name"] == response.tool_calls[0].get("name")
-                ),
-                None,
-            )
+    if response.__class__ == AIMessage and response.tool_calls:
+        current_tool = next(
+            (
+                tool
+                for tool in tools
+                if tool.get("function", {})["name"]
+                == response.tool_calls[0].get("name")
+            ),
+            None,
+        )
 
     if (
         response.content == IDK_RESPONSE
@@ -419,3 +422,22 @@ graph = builder.compile(
     interrupt_after=[],
 )
 graph.name = "AssistantGraph"
+
+if __name__ == "__main__":
+    try:
+        with open(
+            "E:\\workspace\\python\\langgraph-mcp\\mcp-servers-config.json",
+            "r",
+            encoding="utf-8",
+        ) as f:
+            mcp_tools = json.loads(f.read())
+        result = asyncio.run(
+            graph.ainvoke(
+                input={"messages": [HumanMessage(content="访问www.baidu.com，搜索今天厦门的天气")]},
+                config={"configurable": {"mcp_server_config": mcp_tools}},
+            )
+        )
+
+        print(result)
+    except Exception as e:
+        logger.exception("异常", exc_info=e)

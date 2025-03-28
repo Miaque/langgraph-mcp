@@ -1,8 +1,8 @@
 import os
-import json
 from abc import ABC, abstractmethod
 from typing import Any
-from typing import Any
+
+import pydantic_core
 from langchain_core.tools import ToolException
 from mcp import (
     ClientSession,
@@ -12,13 +12,12 @@ from mcp import (
     StdioServerParameters,
     stdio_client,
 )
-import pydantic_core
+
 from langgraph_mcp.utils.openapi_spec import OpenAPISpec
 from langgraph_mcp.utils.openapi_utils import openapi_spec_to_openai_fn
 from langgraph_mcp.utils.utils import (
-    merge_json_structure,
     extract_inlined_operation_data,
-    find_path_from_operation_id,
+    merge_json_structure,
 )
 
 

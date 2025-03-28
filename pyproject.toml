@@ -8,7 +8,7 @@ authors = [
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "asyncio>=3.4.3",
     "langchain>=0.2.17",
@@ -18,7 +18,9 @@ dependencies = [
     "langgraph>=0.2.56",
     "mcp>=1.0.0",
     "openai>=1.57.0",
-    "python-dotenv>=1.0.1"
+    "python-dotenv>=1.0.1",
+    "openapi-pydantic (>=0.5.1,<0.6.0)",
+    "mcp-server-time (>=0.6.2,<0.7.0)"
 ]
 
 [project.optional-dependencies]
@@ -32,3 +34,10 @@ build-backend = "setuptools.build_meta"
 packages = ["langgraph_mcp"]
 [tool.setuptools.package-dir]
 "langgraph_mcp" = "src/langgraph_mcp"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.11.2"
+

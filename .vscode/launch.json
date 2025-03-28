@@ -4,7 +4,20 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "name": "Python Debugger: assistant_graph.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/langgraph_mcp/assistant_graph.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: build_router_graph.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/langgraph_mcp/build_router_graph.py",
+            "console": "integratedTerminal"
+        },
         {
             "name": "LangGraph : Attach",
             "type": "debugpy",
